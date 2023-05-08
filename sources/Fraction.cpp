@@ -138,7 +138,7 @@ Fraction Fraction::operator-(float number) const
     Fraction const floatFrac(number);
     return *this - floatFrac;
 }
-Fraction ariel::operator-(float number, Fraction &otherFraction)
+Fraction ariel::operator-(float number, const Fraction &otherFraction)
 {
     // first, convert the number to fraction
     Fraction const floatFrac(number);
