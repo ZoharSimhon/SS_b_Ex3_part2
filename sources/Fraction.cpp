@@ -1,6 +1,4 @@
-#include "Fraction.hpp"
-#include <cmath>
-
+#include "Fraction.hpp"                                                            
 using namespace ariel;
 
 // constructors
@@ -29,21 +27,6 @@ Fraction::Fraction(float number)
 }
 
 // helper functions
-int Fraction::gcd(int number1, int number2) const
-{
-    int absNum1 = abs(number1);
-    int absNum2 = abs(number2);
-    int minNum = min(absNum1, absNum2);
-    int sqrMin = sqrt(minNum);
-    for (int i = minNum; i >= sqrMin; i--)
-    {
-        if ((absNum1 % i == 0) && (absNum2 % i == 0))
-        {
-            return i;
-        }
-    }
-    return 1;
-}
 void Fraction::reduce()
 {
     int gcdNum = gcd(this->denominator_, this->numerator_);
@@ -81,7 +64,9 @@ int Fraction::compareTo(const Fraction &otherFraction) const
 
     return 0;
 }
-void Fraction::handle_overflow(long long numerator, long long denominator) const
+
+// out function
+void handle_overflow(long long numerator, long long denominator)
 {
     if (numerator < INT_MIN || INT_MAX < numerator || denominator < INT_MIN || INT_MAX < denominator)
         throw std::overflow_error("The result fraction is overflow");
@@ -97,17 +82,17 @@ int Fraction::getDenominator() const
     return this->denominator_;
 }
 
-// overload plus operator
-Fraction Fraction::operator+(const Fraction &otherFraction) const
+// overload arithmetic operators
+const Fraction ariel::operator+(const Fraction &fraction1, const Fraction &fraction2)
 {
     // first, find the common divider:
-    int gcdNum = gcd(this->denominator_, otherFraction.denominator_);
-    long long mult = (long long)(this->denominator_) * (long long)(otherFraction.denominator_);
+    int gcdNum = gcd(fraction1.denominator_, fraction2.denominator_);
+    long long mult = (long long)(fraction1.denominator_) * (long long)(fraction2.denominator_);
     mult = abs(mult);
     long long lcm = mult / gcdNum;
     // then, multiply both fructions by the commonDivider
-    long long numerator1 = (long long)(this->numerator_) * (lcm / this->denominator_);
-    long long numerator2 = (long long)(otherFraction.numerator_) * (lcm / otherFraction.denominator_);
+    long long numerator1 = (long long)(fraction1.numerator_) * (lcm / fraction1.denominator_);
+    long long numerator2 = (long long)(fraction2.numerator_) * (lcm / fraction2.denominator_);
     // sum the numerators
     long long sumNumerator = numerator1 + numerator2;
     // check overflow case
@@ -116,19 +101,17 @@ Fraction Fraction::operator+(const Fraction &otherFraction) const
     Fraction sumFraction((int)(sumNumerator), (int)(lcm));
     return sumFraction;
 }
-
-// overload minus operator
-Fraction Fraction::operator-(const Fraction &otherFraction) const
+const Fraction ariel::operator-(const Fraction &fraction1, const Fraction &fraction2)
 {
     // first, find the common divider:
-    int gcdNum = gcd(this->denominator_, otherFraction.denominator_);
-    long long mult = (long long)(this->denominator_) * (long long)(otherFraction.denominator_);
+    int gcdNum = gcd(fraction1.denominator_, fraction2.denominator_);
+    long long mult = (long long)(fraction1.denominator_) * (long long)(fraction2.denominator_);
     mult = abs(mult);
     long long lcm = mult / gcdNum;
     // then, multiply both fructions by the commonDivider
-    long long numerator1 = (long long)(this->numerator_) * (lcm / this->denominator_);
-    long long numerator2 = (long long)(otherFraction.numerator_) * (lcm / otherFraction.denominator_);
-    // sub the numerators
+    long long numerator1 = (long long)(fraction1.numerator_) * (lcm / fraction1.denominator_);
+    long long numerator2 = (long long)(fraction2.numerator_) * (lcm / fraction2.denominator_);
+    // sum the numerators
     long long subNumerator = numerator1 - numerator2;
     // check overflow case
     handle_overflow(subNumerator, lcm);
@@ -136,29 +119,25 @@ Fraction Fraction::operator-(const Fraction &otherFraction) const
     Fraction subFraction((int)(subNumerator), (int)(lcm));
     return subFraction;
 }
-
-// overload multiplication operator
-Fraction Fraction::operator*(const Fraction &otherFraction) const
+const Fraction ariel::operator*(const Fraction &fraction1, const Fraction &fraction2)
 {
-    long long numerator = (long long)(this->numerator_) * (long long)(otherFraction.numerator_);
-    long long denominator = (long long)(this->denominator_) * (long long)(otherFraction.denominator_);
+    long long numerator = (long long)(fraction1.numerator_) * (long long)(fraction2.numerator_);
+    long long denominator = (long long)(fraction1.denominator_) * (long long)(fraction2.denominator_);
     // check overflow case
     handle_overflow(numerator, denominator);
     // build a new fraction
     Fraction multFraction(numerator, denominator);
     return multFraction;
 }
-
-// overload division operator
-Fraction Fraction::operator/(const Fraction &otherFraction) const
+const Fraction ariel::operator/(const Fraction &fraction1, const Fraction &fraction2)
 {
     // first, check if the fraction is valid
-    if (otherFraction.numerator_ == 0)
+    if (fraction2.numerator_ == 0)
     {
         throw runtime_error("0 can't be in the denominator");
     }
-    Fraction inverseFraction(otherFraction.denominator_, otherFraction.numerator_);
-    return (*this) * inverseFraction;
+    Fraction inverseFraction(fraction2.denominator_, fraction2.numerator_);
+    return fraction1 * inverseFraction;
 }
 
 // overload increase by one opertor
@@ -187,40 +166,32 @@ Fraction Fraction::operator--(int num)
     return temp;
 }
 
-// overload equality operator
-bool Fraction::operator==(const Fraction &otherFraction) const
+// overload comparison operations operators
+bool ariel::operator==(const Fraction &fraction1, const Fraction &fraction2)
 {
-    if (this->compareTo(otherFraction) == 0)
+    if (fraction1.compareTo(fraction2) == 0)
         return true;
     return false;
 }
-
-// overload greater-then operator
-bool Fraction::operator>(const Fraction &otherFraction) const
+bool ariel::operator>(const Fraction &fraction1, const Fraction &fraction2)
 {
-    if (this->compareTo(otherFraction) == 1)
+    if (fraction1.compareTo(fraction2) == 1)
         return true;
     return false;
 }
-
-// overload less-then operator
-bool Fraction::operator<(const Fraction &otherFraction) const
+bool ariel::operator<(const Fraction &fraction1, const Fraction &fraction2)
 {
-    if (this->compareTo(otherFraction) == -1)
+    if (fraction1.compareTo(fraction2) == -1)
         return true;
     return false;
 }
-
-// overload less-then or equal to operator
-bool Fraction::operator<=(const Fraction &otherFraction) const
+bool ariel::operator<=(const Fraction &fraction1, const Fraction &fraction2)
 {
-    return (*this < otherFraction) || (*this == otherFraction);
+    return (fraction1 < fraction2) || (fraction1 == fraction2);
 }
-
-// overload greater-then or equal to operator
-bool Fraction::operator>=(const Fraction &otherFraction) const
+bool ariel::operator>=(const Fraction &fraction1, const Fraction &fraction2)
 {
-    return (*this > otherFraction) || (*this == otherFraction);
+    return (fraction1 > fraction2) || (fraction1 == fraction2);
 }
 
 // input/output operator
