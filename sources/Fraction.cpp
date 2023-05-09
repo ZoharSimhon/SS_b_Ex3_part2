@@ -14,7 +14,7 @@ Fraction::Fraction(int numerator, int denominator)
     // first, check if the fraction is valid
     if (denominator == 0)
     {
-        throw invalid_argument("0 can't be in the denominator");
+        throw invalid_argument("");
     }
 
     this->numerator_ = numerator;
@@ -48,20 +48,25 @@ void Fraction::reduce()
     int gcdNum = gcd(this->denominator_, this->numerator_);
     this->numerator_ /= gcdNum;
     this->denominator_ /= gcdNum;
+    // raise the minus the the numerator
+    if (this->denominator_ < 0)
+    {
+        this->numerator_ *= -1;
+        this->denominator_ *= -1;
+    }
 }
-int Fraction::abs(int number) const
+long long Fraction::abs(long long number) const
 {
     if (number < 0)
-    {
         return (-1) * number;
-    }
+
     return number;
 }
 int Fraction::compareTo(const Fraction &otherFraction) const
 {
     // first, find the common divider:
     int gcdNum = gcd(this->denominator_, otherFraction.denominator_);
-    int mult = abs(this->denominator_ * otherFraction.denominator_);
+    int mult = this->denominator_ * otherFraction.denominator_;
     int lcm = mult / gcdNum;
     // then, multiply both fructions by the commonDivider
     int thisnumerator = this->numerator_ * (lcm / this->denominator_);
@@ -74,6 +79,11 @@ int Fraction::compareTo(const Fraction &otherFraction) const
         return -1;
 
     return 0;
+}
+void Fraction::handle_overflow(long long numerator, long long denominator) const
+{
+    if (numerator < INT_MIN || INT_MAX < numerator || denominator < INT_MIN || INT_MAX < denominator)
+        throw std::overflow_error("The result fraction is overflow");
 }
 
 // getters
@@ -91,15 +101,18 @@ Fraction Fraction::operator+(const Fraction &otherFraction) const
 {
     // first, find the common divider:
     int gcdNum = gcd(this->denominator_, otherFraction.denominator_);
-    int mult = abs(this->denominator_ * otherFraction.denominator_);
-    int lcm = mult / gcdNum;
+    long long mult = (long long)(this->denominator_) * (long long)(otherFraction.denominator_);
+    mult = abs(mult);
+    long long lcm = mult / gcdNum;
     // then, multiply both fructions by the commonDivider
-    int numerator1 = this->numerator_ * (lcm / this->denominator_);
-    int numerator2 = otherFraction.numerator_ * (lcm / otherFraction.denominator_);
+    long long numerator1 = (long long)(this->numerator_) * (lcm / this->denominator_);
+    long long numerator2 = (long long)(otherFraction.numerator_) * (lcm / otherFraction.denominator_);
     // sum the numerators
-    int sumNumerator = numerator1 + numerator2;
+    long long sumNumerator = numerator1 + numerator2;
+    // check overflow case
+    handle_overflow(sumNumerator, lcm);
     // build a new fraction
-    Fraction sumFraction(sumNumerator, lcm);
+    Fraction sumFraction((int)(sumNumerator), (int)(lcm));
     return sumFraction;
 }
 Fraction Fraction::operator+(float number) const
@@ -121,15 +134,18 @@ Fraction Fraction::operator-(const Fraction &otherFraction) const
 {
     // first, find the common divider:
     int gcdNum = gcd(this->denominator_, otherFraction.denominator_);
-    int mult = abs(this->denominator_ * otherFraction.denominator_);
-    int lcm = mult / gcdNum;
+    long long mult = (long long)(this->denominator_) * (long long)(otherFraction.denominator_);
+    mult = abs(mult);
+    long long lcm = mult / gcdNum;
     // then, multiply both fructions by the commonDivider
-    int numerator1 = this->numerator_ * (lcm / this->denominator_);
-    int numerator2 = otherFraction.numerator_ * (lcm / otherFraction.denominator_);
+    long long numerator1 = (long long)(this->numerator_) * (lcm / this->denominator_);
+    long long numerator2 = (long long)(otherFraction.numerator_) * (lcm / otherFraction.denominator_);
     // sub the numerators
-    int subNumerator = numerator1 - numerator2;
+    long long subNumerator = numerator1 - numerator2;
+    // check overflow case
+    handle_overflow(subNumerator, lcm);
     // build a new fraction
-    Fraction subFraction(subNumerator, lcm);
+    Fraction subFraction((int)(subNumerator), (int)(lcm));
     return subFraction;
 }
 Fraction Fraction::operator-(float number) const
@@ -148,8 +164,11 @@ Fraction ariel::operator-(float number, const Fraction &otherFraction)
 // overload multiplication operator
 Fraction Fraction::operator*(const Fraction &otherFraction) const
 {
-    int numerator = this->numerator_ * otherFraction.numerator_;
-    int denominator = this->denominator_ * otherFraction.denominator_;
+    long long numerator = (long long)(this->numerator_) * (long long)(otherFraction.numerator_);
+    long long denominator = (long long)(this->denominator_) * (long long)(otherFraction.denominator_);
+    // check overflow case
+    handle_overflow(numerator, denominator);
+    // build a new fraction
     Fraction multFraction(numerator, denominator);
     return multFraction;
 }
@@ -167,6 +186,11 @@ Fraction ariel::operator*(float number, const Fraction &otherFraction)
 // overload division operator
 Fraction Fraction::operator/(const Fraction &otherFraction) const
 {
+    // first, check if the fraction is valid
+    if (otherFraction.numerator_ == 0)
+    {
+        throw runtime_error("0 can't be in the denominator");
+    }
     Fraction inverseFraction(otherFraction.denominator_, otherFraction.numerator_);
     return (*this) * inverseFraction;
 }
@@ -297,27 +321,19 @@ bool ariel::operator>=(float number, const Fraction &otherFraction)
 // input/output operator
 istream &ariel::operator>>(istream &input, Fraction &otherFraction)
 {
-    // get length of the input:
-    input.seekg(0, input.end);
-    int length = input.tellg();
-    input.seekg(0, input.beg);
-    // should be two integers and a comma or a space
-    if (length != 3)
+    int numerator, denominator;
+    input >> numerator >> denominator;
+    otherFraction.numerator_ = numerator;
+    otherFraction.denominator_ = denominator;
+    if (input.fail())
     {
         throw runtime_error("invalid argument");
     }
-    cout << "Enter Numerator ";
-    input >> otherFraction.numerator_;
-    cout << "Enter Denominator " << endl;
-    input >> otherFraction.denominator_;
-
-    // first, check if the fraction is valid
-    if (otherFraction.denominator_ == 0)
+    if (denominator == 0)
     {
-        throw invalid_argument("0 can't be in the denominator");
+        throw runtime_error("0 can't be in the denominator");
     }
 
-    // then, reduce the fruction
     otherFraction.reduce();
 
     return input;

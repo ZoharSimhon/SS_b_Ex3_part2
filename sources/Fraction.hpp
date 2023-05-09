@@ -1,6 +1,9 @@
 #pragma once
 #include <string>
 #include <iostream>
+#include <limits.h>
+#include <numeric>
+
 using namespace std;
 
 namespace ariel
@@ -16,8 +19,10 @@ namespace ariel
         // helper functions
         void reduce();
         int gcd(int, int) const;
-        int abs(int) const;
+        long long abs(long long) const;
         int compareTo(const Fraction &) const;
+        void handle_overflow(long long, long long) const;
+
 
     public:
         // constructors
