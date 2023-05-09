@@ -27,8 +27,12 @@ namespace ariel
     public:
         // constructors
         Fraction();
-         Fraction(int, int);
-         Fraction(float);
+        explicit Fraction(int, int);
+        explicit Fraction(float);
+
+        // Fraction(const Fraction&);
+        // Fraction &operator= (const Fraction&);
+        //~Fraction();
 
         // getters
         int getNumerator() const;
@@ -36,15 +40,23 @@ namespace ariel
 
         // overload plus operator
         Fraction operator+(const Fraction &) const;
-        
+        Fraction operator+(float) const;
+        friend Fraction operator+(float, const Fraction &);
+
         // overload minus operator
         Fraction operator-(const Fraction &) const;
+        Fraction operator-(float) const;
+        friend Fraction operator-(float, const Fraction &);
 
         // overload multiplication operator
         Fraction operator*(const Fraction &) const;
+        Fraction operator*(float) const;
+        friend Fraction operator*(float, const Fraction &);
 
         // overload division operator
         Fraction operator/(const Fraction &) const;
+        Fraction operator/(float) const;
+        friend Fraction operator/(float, const Fraction &);
 
         // overload increase by one opertor
         Fraction operator++();    // prefix
@@ -56,18 +68,29 @@ namespace ariel
 
         // overload equality operator
         bool operator==(const Fraction &) const;
+        bool operator==(float) const;
+        friend bool operator==(float, const Fraction &);
 
         // overload greater-then operator
         bool operator>(const Fraction &) const;
+        bool operator>(float) const;
+        friend bool operator>(float, const Fraction &);
 
         // overload less-then operator
+        // overload less-then operator
         bool operator<(const Fraction &) const;
+        bool operator<(float) const;
+        friend bool operator<(float, const Fraction &);
 
         // overload greater-then or equal to operator
         bool operator>=(const Fraction &) const;
+        bool operator>=(float) const;
+        friend bool operator>=(float, const Fraction &);
 
         // overload less-then or equal to operator
         bool operator<=(const Fraction &) const;
+        bool operator<=(float) const;
+        friend bool operator<=(float, const Fraction &);
 
         // input/output operator
         friend istream &operator>>(istream &, Fraction &);

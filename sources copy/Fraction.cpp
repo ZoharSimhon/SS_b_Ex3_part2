@@ -116,6 +116,19 @@ Fraction Fraction::operator+(const Fraction &otherFraction) const
     Fraction sumFraction((int)(sumNumerator), (int)(lcm));
     return sumFraction;
 }
+Fraction Fraction::operator+(float number) const
+{
+    // first, convert the number to fraction
+    int numerator = number * 1000;
+    int denominator = 1000;
+    Fraction floatFrac(numerator, denominator);
+
+    return floatFrac + *this;
+}
+Fraction ariel::operator+(float number, const Fraction &otherFraction)
+{
+    return otherFraction + number;
+}
 
 // overload minus operator
 Fraction Fraction::operator-(const Fraction &otherFraction) const
@@ -136,6 +149,18 @@ Fraction Fraction::operator-(const Fraction &otherFraction) const
     Fraction subFraction((int)(subNumerator), (int)(lcm));
     return subFraction;
 }
+Fraction Fraction::operator-(float number) const
+{
+    // first, convert the number to fraction
+    Fraction const floatFrac(number);
+    return *this - floatFrac;
+}
+Fraction ariel::operator-(float number, const Fraction &otherFraction)
+{
+    // first, convert the number to fraction
+    Fraction const floatFrac(number);
+    return floatFrac - otherFraction;
+}
 
 // overload multiplication operator
 Fraction Fraction::operator*(const Fraction &otherFraction) const
@@ -148,6 +173,16 @@ Fraction Fraction::operator*(const Fraction &otherFraction) const
     Fraction multFraction(numerator, denominator);
     return multFraction;
 }
+Fraction Fraction::operator*(float number) const
+{
+    // first, convert the number to fraction
+    Fraction const floatFrac(number);
+    return floatFrac * (*this);
+}
+Fraction ariel::operator*(float number, const Fraction &otherFraction)
+{
+    return otherFraction * number;
+}
 
 // overload division operator
 Fraction Fraction::operator/(const Fraction &otherFraction) const
@@ -159,6 +194,17 @@ Fraction Fraction::operator/(const Fraction &otherFraction) const
     }
     Fraction inverseFraction(otherFraction.denominator_, otherFraction.numerator_);
     return (*this) * inverseFraction;
+}
+Fraction Fraction::operator/(float number) const
+{
+    // first, convert the number to fraction
+    Fraction const floatFrac(number);
+    return (*this) / floatFrac;
+}
+Fraction ariel::operator/(float number, const Fraction &otherFraction)
+{
+    Fraction inverseFraction(otherFraction.denominator_, otherFraction.numerator_);
+    return inverseFraction * number;
 }
 
 // overload increase by one opertor
@@ -194,6 +240,16 @@ bool Fraction::operator==(const Fraction &otherFraction) const
         return true;
     return false;
 }
+bool Fraction::operator==(float number) const
+{
+    // first, convert the number to fraction
+    Fraction const floatFrac(number);
+    return floatFrac == (*this);
+}
+bool ariel::operator==(float number, const Fraction &otherFraction)
+{
+    return otherFraction == number;
+}
 
 // overload greater-then operator
 bool Fraction::operator>(const Fraction &otherFraction) const
@@ -201,6 +257,18 @@ bool Fraction::operator>(const Fraction &otherFraction) const
     if (this->compareTo(otherFraction) == 1)
         return true;
     return false;
+}
+bool Fraction::operator>(float number) const
+{
+    // first, convert the number to fraction
+    Fraction const floatFrac(number);
+    return (*this) > floatFrac;
+}
+bool ariel::operator>(float number, const Fraction &otherFraction)
+{
+    // first, convert the number to fraction
+    Fraction const floatFrac(number);
+    return floatFrac > otherFraction;
 }
 
 // overload less-then operator
@@ -210,17 +278,45 @@ bool Fraction::operator<(const Fraction &otherFraction) const
         return true;
     return false;
 }
+bool Fraction::operator<(float number) const
+{
+    // first, convert the number to fraction
+    Fraction const floatFrac(number);
+    return (*this) < floatFrac;
+}
+bool ariel::operator<(float number, const Fraction &otherFraction)
+{
+    // first, convert the number to fraction
+    Fraction const floatFrac(number);
+    return floatFrac < otherFraction;
+}
 
 // overload less-then or equal to operator
 bool Fraction::operator<=(const Fraction &otherFraction) const
 {
     return (*this < otherFraction) || (*this == otherFraction);
 }
+bool Fraction::operator<=(float number) const
+{
+    return (*this < number) || (number == *this);
+}
+bool ariel::operator<=(float number, const Fraction &otherFraction)
+{
+    return (number < otherFraction) || (number == otherFraction);
+}
 
 // overload greater-then or equal to operator
 bool Fraction::operator>=(const Fraction &otherFraction) const
 {
     return (*this > otherFraction) || (*this == otherFraction);
+}
+bool Fraction::operator>=(float number) const
+{
+    return (*this > number) || (number == *this);
+}
+bool ariel::operator>=(float number, const Fraction &otherFraction)
+{
+    return (number > otherFraction) || (number == otherFraction);
 }
 
 // input/output operator
